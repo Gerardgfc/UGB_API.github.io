@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 import joblib
 import pandas as pd
 import os
@@ -7,20 +7,16 @@ from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 
-# Ruta al archivo del modelo
 modelo_path = os.path.join(os.getcwd(), 'modelo_fraudev2.pkl')
 
-# Cargar el modelo si existe
 if os.path.exists(modelo_path):
     modelo = joblib.load(modelo_path)
 else:
     print("Archivo de modelo no encontrado")
     sys.exit(1)
 
-# Inicializar el escalador
 escalador = StandardScaler()
 
-# Definir las columnas necesarias
 columnas_modelo = [
     'income', 'name_email_similarity', 'current_address_months_count', 
     'customer_age', 'days_since_request', 'bank_branch_count_8w', 
@@ -40,7 +36,6 @@ columnas_modelo = [
 ]
 
 def preparar_dataframe(df):
-    # Verificar si las columnas requeridas están en el DataFrame
     faltantes = [col for col in columnas_modelo if col not in df.columns]
     if faltantes:
         return None, f"Faltan las siguientes columnas: {', '.join(faltantes)}"
@@ -54,7 +49,7 @@ def preprocesar_datos(data_df):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return send_from_directory('.', 'index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
